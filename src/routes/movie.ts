@@ -11,8 +11,10 @@ router.get("/allmovies", MovieController.FetchAllmovie);
 router.get("/movies/:movie_id", MovieController.FetchmovieDetails);
 router.get("/theaters", MovieController.FetchTheaters);
 router.get("/movies/name/:movie_id", MovieController.FetchMovie);
-router.get("/movies/booking/list",auth, MovieController.FetchBookingList);
-router.get("/theaters/:theater_id/:movie_id", MovieController.FetchTheaterSeats);
+router.get("/movies/theater/:theater_id/:movie_id", MovieController.FetchTheaterName);
+router.get("/movies/moviedetails/:booking_id", MovieController.FetchBookedDetails);
+router.get("/bookings",auth, MovieController.FetchBookingList);
+router.get("/slots/:theater_id/:movie_id", MovieController.FetchTheaterSeats);
 router.post("/movies/book",upload.none(), MovieController.BooktTickes);
 
 

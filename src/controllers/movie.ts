@@ -13,7 +13,7 @@ class MovieController {
             httpstatus.successResponse(fetchAllmoives, res);
         } catch (e) {
             console.error(e);
-            
+           
         }
     };
     public FetchmovieDetails = async (req: Request, res: Response): Promise<void> => {
@@ -59,6 +59,21 @@ class MovieController {
             
         }
     };
+    public FetchTheaterName = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { theater_id,movie_id } = req.params;
+           const fetchTheater = await db('theaters').select('name').where({ theater_id:theater_id }).first();
+           const fetchmovies = await db('movies').select('title').where({ movie_id:movie_id }).first();
+
+           httpstatus.successResponse({
+  name: fetchTheater.name,
+  movie: fetchmovies.title
+}, res);
+        } catch (e) {
+            console.error(e);
+            
+        }
+    };
     public BooktTickes = async (req: Request, res: Response): Promise<void> => {
         try {
           console.log(req.body);
@@ -90,7 +105,7 @@ class MovieController {
         });
 
         await Promise.all(seatUpdates);
-         httpstatus.successResponse('Ticket Booked Succesfully', res);
+         httpstatus.successResponse({booking_id:fetchBookedId.booking_id}, res);
         } catch (e) {
             console.error(e);
            httpstatus.errorResponse({ 
@@ -114,7 +129,7 @@ class MovieController {
                 .select('booking_status.*', 'movies.title', 'theaters.name as theater_name','movies.languages','theaters.address',
                     'movies.release_date','movies.show_time','movies.duration_minutes','movies.image_url'
                 )
-                .where({ customer_id: users.userid });
+                .where({ customer_id: users.userid }).orderBy('booking_id', 'desc');
              const ftchbookinglist = await Promise.all(
     bookingList.map(async (booking) => {
         const fetchTicketCount = await db('booked_seat')
@@ -135,6 +150,59 @@ class MovieController {
 
            
                httpstatus.successResponse(ftchbookinglist, res);
+        } catch (e) {
+            console.error(e);
+            
+        }
+    };
+ public FetchBookedDetails = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { user } = req;
+           const {  booking_id } = req.params;
+          
+
+          const bookingList = await db('booking_status')
+  .join('movies', 'booking_status.movie_id', 'movies.movie_id')
+  .join('theaters', 'booking_status.theater_id', 'theaters.theater_id')
+  .select(
+    'booking_status.*',
+    'movies.title',
+    'theaters.name as theater_name',
+    'movies.languages',
+    'theaters.address',
+    'movies.release_date',
+    'movies.show_time',
+    'movies.duration_minutes',
+    'movies.image_url'
+  )
+  .where({ booking_id });
+
+if (bookingList.length === 0) {
+   
+    httpstatus.errorResponse({ 
+      code: 404, 
+      message: 'Booking not found' 
+    }, res);
+}
+
+const fetchTicketCount = await db('booked_seat')
+  .select('booking_id', 'seat_id', 'seat_row', 'seat_number', 'seat_type') // Added seat_type
+  .where({ booking_id });
+
+const seatString = fetchTicketCount.map((seat) => {
+  return {
+    id: seat.seat_row + seat.seat_number, // Combine row and number for unique ID
+    row: seat.seat_row,
+    number: seat.seat_number,
+    type: seat.seat_type, // Default to 'regular' if seat_type is null
+    price: seat.seat_type === 'Premium' ? 350 : 200 // Dynamic pricing
+  };
+});
+bookingList[0].ticket_count = fetchTicketCount.length;
+bookingList[0].booked_seats = seatString;
+
+httpstatus.successResponse(bookingList[0], res);
+
         } catch (e) {
             console.error(e);
             

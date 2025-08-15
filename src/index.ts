@@ -34,6 +34,7 @@ const app = express();
 // Body parser
 app.use(express.json());
 
+app.use(express.urlencoded({ extended: true })); // For form-urlencoded
 // Detailed server logging
 app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 

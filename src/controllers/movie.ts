@@ -39,8 +39,8 @@ class MovieController {
     };
     public FetchTheaterSeats = async (req: Request, res: Response): Promise<void> => {
         try {
-            const { theater_id } = req.params;
-           const fetchtheaters = await db('seats').select('*').where({ theater_id:theater_id });
+            const { theater_id,movie_id } = req.params;
+           const fetchtheaters = await db('seats').select('*').where({ theater_id:theater_id,movie_id:movie_id }).orderBy('seat_id', 'asc');
 
             httpstatus.successResponse(fetchtheaters, res);
         } catch (e) {
@@ -48,8 +48,98 @@ class MovieController {
             
         }
     };
+    public FetchMovie = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { movie_id } = req.params;
+           const fetchmovie = await db('movies').select('title').where({ movie_id:movie_id }).first();
 
+            httpstatus.successResponse(fetchmovie, res);
+        } catch (e) {
+            console.error(e);
+            
+        }
+    };
+    public BooktTickes = async (req: Request, res: Response): Promise<void> => {
+        try {
+          console.log(req.body);
+          const { customer_id,show_date,price,seats,movie_id } = req.body;
+        const theater_id = seats[0].theater_id; 
+          await db('booking_status').insert({
+            screening_id: 5,
+            status:'Booked',
+            customer_id: customer_id,
+            price: price,
+            theater_id:theater_id,
+            movie_id:movie_id,
+            movie_date:show_date
+          });
 
+          const fetchBookedId = await db('booking_status').select('booking_id').where({ customer_id: customer_id, status: 'Booked' }).orderBy('booking_id','desc').first();
+          const seatUpdates = seats.map(async (seat: any) => {
+            await db('seats').update({
+                is_active: false,
+            }).where({ seat_id: seat.seat_id });
+            await db('booked_seat').insert({
+                booking_id: fetchBookedId.booking_id,
+                seat_id: seat.seat_id,
+                seat_row:seat.row_letter,
+                seat_type: seat.seat_type,
+                theater_id:seat.theater_id,
+                seat_number: seat.seat_number
+            })
+        });
+
+        await Promise.all(seatUpdates);
+         httpstatus.successResponse('Ticket Booked Succesfully', res);
+        } catch (e) {
+            console.error(e);
+           httpstatus.errorResponse({ 
+      code: 500, 
+      message: 'Something went wrong while booking tickets' 
+    }, res);
+        }
+    };
+
+ public FetchBookingList = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { user } = req;
+           console.log(user?.email)
+
+           const users = await db('users').select('userid').where({ email: user?.email }).first();
+           
+
+           const bookingList = await db('booking_status')
+                .join('movies', 'booking_status.movie_id', 'movies.movie_id')
+                .join('theaters', 'booking_status.theater_id', 'theaters.theater_id')
+                .select('booking_status.*', 'movies.title', 'theaters.name as theater_name','movies.languages','theaters.address',
+                    'movies.release_date','movies.show_time','movies.duration_minutes','movies.image_url'
+                )
+                .where({ customer_id: users.userid });
+             const ftchbookinglist = await Promise.all(
+    bookingList.map(async (booking) => {
+        const fetchTicketCount = await db('booked_seat')
+            .select('booking_id','seat_id','seat_row','seat_number')
+            .where({ booking_id: booking?.booking_id });
+          const seatString = fetchTicketCount
+            .map(seat => `${seat.seat_number}${seat.seat_row}`)
+            .join(', ');
+              console.log(fetchTicketCount)
+
+        return {
+            ...booking,
+            ticket_count: fetchTicketCount.length,
+            booked_seats: seatString
+        };
+    })
+);
+
+           
+               httpstatus.successResponse(ftchbookinglist, res);
+        } catch (e) {
+            console.error(e);
+            
+        }
+    };
     
 
 }

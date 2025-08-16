@@ -15,7 +15,7 @@ router.get("/movies/theater/:theater_id/:movie_id", MovieController.FetchTheater
 router.get("/movies/moviedetails/:booking_id", MovieController.FetchBookedDetails);
 router.get("/bookings",auth, MovieController.FetchBookingList);
 router.get("/slots/:theater_id/:movie_id", MovieController.FetchTheaterSeats);
-router.post("/movies/book",upload.none(), MovieController.BooktTickes);
+router.post("/movies/book",upload.none(),auth, MovieController.BooktTickes);
 
 
 export default router;

@@ -86,7 +86,7 @@ if (validator.validate(req, res, rules)) return;
             }
 
             const token = jwt.sign(
-                { id: user.id, email: user.email },
+                { id: user.userid, email: user.email },
                 process.env.JWT_SECRET as string,
                 { expiresIn: '1h' }
             );

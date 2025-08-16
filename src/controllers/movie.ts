@@ -94,20 +94,20 @@ class MovieController {
     };
     public BooktTickes = async (req: Request, res: Response): Promise<void> => {
         try {
-          console.log(req.body);
-          const { customer_id,show_date,price,seats,movie_id } = req.body;
+          const { id } = req.user || {};
+          const { show_date,price,seats,movie_id } = req.body;
         const theater_id = seats[0].theater_id; 
           await db('booking_status').insert({
             screening_id: 5,
             status:'Booked',
-            customer_id: customer_id,
+            customer_id: id,
             price: price,
             theater_id:theater_id,
             movie_id:movie_id,
             movie_date:show_date
           });
 
-          const fetchBookedId = await db('booking_status').select('booking_id').where({ customer_id: customer_id, status: 'Booked' }).orderBy('booking_id','desc').first();
+          const fetchBookedId = await db('booking_status').select('booking_id').where({ customer_id: id, status: 'Booked' }).orderBy('booking_id','desc').first();
           const seatUpdates = seats.map(async (seat: any) => {
             await db('seats').update({
                 is_active: false,
@@ -136,7 +136,7 @@ class MovieController {
  public FetchBookingList = async (req: Request, res: Response): Promise<void> => {
         try {
             const { user } = req;
-           console.log(user?.email)
+        
 
            const users = await db('users').select('userid').where({ email: user?.email }).first();
            
@@ -156,11 +156,12 @@ class MovieController {
           const seatString = fetchTicketCount
             .map(seat => `${seat.seat_number}${seat.seat_row}`)
             .join(', ');
-              console.log(fetchTicketCount)
-
+              
+            const basePrice = parseFloat(booking.price);
         return {
             ...booking,
             ticket_count: fetchTicketCount.length,
+            price:  (basePrice + 30).toFixed(2),
             booked_seats: seatString
         };
     })

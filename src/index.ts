@@ -1,4 +1,3 @@
-// Import packages onto app
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -28,40 +27,39 @@ const PORT = process.env.PORT || 5000;
 const RATE_TIME_LIMIT = Number(process.env.RATE_TIME_LIMIT) || 15;
 const RATE_REQUEST_LIMIT = Number(process.env.RATE_REQUEST_LIMIT) || 100;
 
-// Init express app
 const app = express();
 
-// Body parser
 app.use(express.json());
-
 app.use(express.urlencoded({ extended: true })); // For form-urlencoded
-// Detailed server logging
+
+
 app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 
-app.use(
-  rateLimit({
-    windowMs: RATE_TIME_LIMIT * 60 * 1000,
-    max: RATE_REQUEST_LIMIT,
-  }),
-);
+// app.use(
+//   rateLimit({
+//     windowMs: RATE_TIME_LIMIT * 60 * 1000,
+//     max: RATE_REQUEST_LIMIT,
+//   }),
+// );
 
-// Enable CORS
+
+
+const staticPath = path.resolve(__dirname, "assets/movies");
+app.use("/assets/movie", express.static(staticPath));
+
 app.use(cors({
   origin: process.env.CORS_ORIGIN || '*'
 }));
 
 // Security Headers
 app.use(helmet());
-
-// Secure against param pollutions
 app.use(hpp());
 
 
 try {
-  // Check if directory exists first
   if (!fs.existsSync(routesPath)) {
     console.warn(`!! WARNING !!: Routes directory not found at ${routesPath}`);
-    process.exit(1); // Exit if directory doesn't exist
+    process.exit(1);
   }
 
   const filenames: string[] = fs.readdirSync(routesPath);

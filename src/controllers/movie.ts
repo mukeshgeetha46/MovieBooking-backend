@@ -13,7 +13,10 @@ class MovieController {
             httpstatus.successResponse(fetchAllmoives, res);
         } catch (e) {
             console.error(e);
-           
+            httpstatus.errorResponse({ 
+      code: 500, 
+      message: 'Internal server error while fetching movies' 
+    }, res);
         }
     };
     public FetchmovieDetails = async (req: Request, res: Response): Promise<void> => {
@@ -24,7 +27,10 @@ class MovieController {
             httpstatus.successResponse(fetchmoivesdetails, res);
         } catch (e) {
             console.error(e);
-            
+             httpstatus.errorResponse({ 
+      code: 500, 
+      message: 'internal server error while fetching movie details' 
+    }, res);
         }
     };
     public FetchTheaters = async (req: Request, res: Response): Promise<void> => {
@@ -34,7 +40,10 @@ class MovieController {
             httpstatus.successResponse(fetchtheaters, res);
         } catch (e) {
             console.error(e);
-            
+             httpstatus.errorResponse({ 
+      code: 500, 
+      message: 'Internal server error while fetching theaters' 
+    }, res);
         }
     };
     public FetchTheaterSeats = async (req: Request, res: Response): Promise<void> => {
@@ -45,7 +54,10 @@ class MovieController {
             httpstatus.successResponse(fetchtheaters, res);
         } catch (e) {
             console.error(e);
-            
+             httpstatus.errorResponse({ 
+      code: 500, 
+      message: 'Internal server error while fetching theater seats' 
+    }, res);
         }
     };
     public FetchMovie = async (req: Request, res: Response): Promise<void> => {
@@ -56,7 +68,10 @@ class MovieController {
             httpstatus.successResponse(fetchmovie, res);
         } catch (e) {
             console.error(e);
-            
+             httpstatus.errorResponse({ 
+      code: 500, 
+      message: 'Internal server error while fetching movie name' 
+    }, res);
         }
     };
     public FetchTheaterName = async (req: Request, res: Response): Promise<void> => {
@@ -71,7 +86,10 @@ class MovieController {
 }, res);
         } catch (e) {
             console.error(e);
-            
+             httpstatus.errorResponse({ 
+      code: 500, 
+      message: 'Internal server error while fetching theater name' 
+    }, res);
         }
     };
     public BooktTickes = async (req: Request, res: Response): Promise<void> => {
@@ -152,7 +170,10 @@ class MovieController {
                httpstatus.successResponse(ftchbookinglist, res);
         } catch (e) {
             console.error(e);
-            
+             httpstatus.errorResponse({ 
+      code: 500, 
+      message: 'Internal server error while fetching booking list' 
+    }, res);
         }
     };
  public FetchBookedDetails = async (req: Request, res: Response): Promise<void> => {
@@ -205,7 +226,10 @@ httpstatus.successResponse(bookingList[0], res);
 
         } catch (e) {
             console.error(e);
-            
+             httpstatus.errorResponse({ 
+      code: 500, 
+      message: 'Internal server error while fetching booked details' 
+    }, res);
         }
     };
     

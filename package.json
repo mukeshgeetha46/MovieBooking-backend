@@ -5,7 +5,7 @@
   "scripts": {
     "start": "nodemon dist/index.js",
     "dev": "nodemon --exec \"npx ts-node\" src/index.ts",
-    "build": "tsc",
+    "build": "tsc && cp -r src/assets dist/",
     "build:watch": "tsc -w",
     "migrate:make": "knex migrate:make --knexfile src/database/knexfile.ts",
     "migrate:latest": "knex migrate:latest --knexfile src/database/knexfile.ts",

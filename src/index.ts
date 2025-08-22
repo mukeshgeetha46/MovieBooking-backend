@@ -52,8 +52,8 @@ app.use(cors({
 }));
 
 // Security Headers
-app.use(helmet());
-app.use(hpp());
+// app.use(helmet());
+// app.use(hpp());
 
 
 try {

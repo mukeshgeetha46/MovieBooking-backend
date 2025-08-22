@@ -60,6 +60,29 @@ class MovieController {
     }, res);
         }
     };
+    public FetchBookedSeats = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { theater_id,movie_id } = req.params;
+          const bookedSeats = await db('booked_seat')
+  .select(
+    'seat_row',
+    'seat_type',
+    'seat_number',
+    db.raw('false as is_active')
+  )
+  .where({ theater_id: theater_id })
+  .orderBy('seat_id','asc')
+
+
+            httpstatus.successResponse(bookedSeats, res);
+        } catch (e) {
+            console.error(e);
+             httpstatus.errorResponse({ 
+      code: 500, 
+      message: 'Internal server error while fetching theater seats' 
+    }, res);
+        }
+    };
     public FetchMovie = async (req: Request, res: Response): Promise<void> => {
         try {
             const { movie_id } = req.params;
@@ -234,6 +257,16 @@ httpstatus.successResponse(bookingList[0], res);
         }
     };
     
+
+     public InsertNewMovie = async (req: Request, res: Response): Promise<void> => {
+      try {
+        console.log(req.body)
+        await db('movies').insert(req.body);
+         httpstatus.successResponse('The New Movie Inserted Successfully', res);
+      } catch (error) {
+         console.log(error)
+      }
+     }
 
 }
 
